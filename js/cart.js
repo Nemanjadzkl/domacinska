@@ -45,7 +45,7 @@ class ShoppingCart {
         });
 
         const checkoutForm = document.getElementById('checkout-form');
-        checkoutForm.addEventListener('submit', (e) => {
+        checkoutForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(checkoutForm);
             const orderData = {
@@ -54,12 +54,10 @@ class ShoppingCart {
                 customer: Object.fromEntries(formData)
             };
             
-            this.sendOrderEmail(orderData);
-
+            await this.sendOrderEmail(orderData);
             this.items = [];
             this.updateCart();
             checkoutModal.style.display = 'none';
-            this.showNotification('Uspešno ste poslali porudžbinu!');
             checkoutForm.reset();
         });
 
@@ -72,25 +70,48 @@ class ShoppingCart {
 
     async sendOrderEmail(orderData) {
         try {
-            const response = await fetch('http://localhost:3000/send-email', {
+            // Log order details to console for debugging
+            console.log('Order received:', orderData);
+    
+            // Send order data to the server
+            const response = await fetch('/api/email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ orderData })
+                body: JSON.stringify({ orderData }),
             });
     
-            if (response.ok) {
+            // Parse the response from the server
+            const data = await response.json();
+    
+            // Check if the email was sent successfully
+            if (data.success) {
+                // Store the order in localStorage for future reference
+                localStorage.setItem('lastOrder', JSON.stringify(orderData));
+    
+                // Show success notification to the user
+                this.showNotification('Porudžbina je uspešno poslata!');
+    
+                // Clear the cart
+                this.items = [];
+                this.updateCart();
+    
+                // Redirect to the success page
                 window.location.href = 'success.html';
             } else {
-                throw new Error('Failed to send email');
+                // If the server responds with an error, throw it
+                throw new Error(data.message || 'Greška pri slanju porudžbine');
             }
         } catch (error) {
+            // Handle any errors that occur during the process
             console.error('Error:', error);
-            alert('Došlo je do greške prilikom slanja porudžbine.');
+    
+            // Show an error notification to the user
+            this.showNotification('Došlo je do greške prilikom slanja porudžbine.');
         }
     }
-    
+
     addItem(product) {
         const existingItem = this.items.find(item => item.id === product.id);
         if (existingItem) {
