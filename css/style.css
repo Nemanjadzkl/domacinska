@@ -54,6 +54,16 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
 }
+.logo img {
+    height: 50px; /* adjust this value to match your desired logo size */
+    width: auto;
+    display: block;
+    transition: var(--transition-fast);
+}
+
+.logo:hover img {
+    transform: scale(1.05);
+}
 
 /* Navbar Styles */
 .navbar {
@@ -528,7 +538,7 @@ body {
 /* Process Section Styling */
 .process-section {
     padding: 8rem 2rem;
-    background: linear-gradient(to right, rgba(74, 49, 77, 0.05), rgba(142, 112, 144, 0.1));
+    background: linear-gradient(to right, rgba(68, 238, 1, 0), rgba(233, 156, 167, 0.1));
 }
 
 .process-steps {
